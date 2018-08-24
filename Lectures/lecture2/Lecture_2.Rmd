@@ -1,0 +1,294 @@
+---
+title: "Data Visualisation with ggplot 2"
+date: "August 24, 2018"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+```
+
+# Introduction
+
+> "The simple graph has brought more information to the data analyst’s mind than any other device.” — John Tukey
+
+- One of the biggest benefits of using R is its graphical capacity.
+- The package `ggplot2` and its related packages create the most elegant and most versatile graphs.
+- `ggplot2` implements the **grammar of graphics**, a coherent system for describing and building graphs
+- To learn more, read "The Layered Grammar of Graphics", [http://vita.had.co.nz/papers/layered-grammar.pdf]( http://vita.had.co.nz/papers/layered-grammar.pdf)
+
+---
+# First example
+
+**Question:** Do cars with big engines use more fuel than cars with small engines?
+
+--
+
+```{r, message=FALSE}
+library(tidyverse)
+data(mpg)
+```
+
+*Checkpoint:* How many rows are in `mpg`? How many columns?
+
+--
+
+Variables of interest: `displ` (engine size) and `hwy` (fuel efficientcy)
+
+---
+# First `ggplot2` graph
+
+```{r, fig.height=5}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy))
+```
+
+---
+# A graphing template
+
+```
+ggplot(data = <DATA>) +
+  <GEOM_FUNCTION>(mapping = aes(<MAPPINGS>))
+```
+
+To make a graph, replace the bracketed sections  with a data set, a *geom* function, or a collection of *mappings*.
+
+--
+
+*Check points:*
+- Make a scatterplot of `hwy` versus `cyl`.
+- What happens if you make a scatterplot if `class` versus `drv`? (You can look up the help documnet of the data set `mpg` for definition of `class` and `drv`)
+
+---
+# Aesthetic mappings
+
+```{r, echo=FALSE, fig.height=4}
+outliers <- mpg %>% filter(hwy > 20, displ > 5)
+ggplot(data = mpg) +
+  geom_point(aes(x = displ, y = hwy)) +
+  geom_point(aes(x = displ, y = hwy), data = outliers, color = "red")
+```
+
+One group of points (highlighted in red) seems to fall outside of the linear trend. These cars have a higher mileage than you might expect. How can you explain these cars?
+
+--
+
+*The type of the cars might provide more insight!!*
+
+---
+# Aesthetic mappings
+
+- An aesthetic is a visual property of the objects in a graph
+- Aesthetics include the size, the shape, the color of points, etc.
+
+--
+```{r, fig.height=4}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, color = class))
+```
+
+---
+# In-class activities
+
+1. Use different aesthetics for `class`. Your options are: color, size, shape, alpha. Can you say something about those outliers?
+
+--
+
+2. Is this possible to use multiple aesthetics on the same graph? Give an example.
+
+---
+# Aesthetics
+
+You can also set the aesthetic properties of your geom manually. 
+```{r, fig.height=3}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy), color = "blue")
+```
+
+--
+
+**Quick question:** What’s gone wrong with this code? Why are the points not blue?
+
+```{r, eval=FALSE}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, color = "blue"))
+```
+
+---
+# Facets
+
+- Another way to add variables (esp., categorical) is to split the plot into **facets**, subplots that each display one subset of the data.
+
+```{r, fig.height=4}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_wrap(~ class, nrow = 2)
+```
+
+---
+# Facets
+
+```{r, fig.height=4}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_grid(drv ~ cyl)
+```
+
+--
+
+*Quick question:* Why do the empty cells in plot mean?
+
+---
+# Geometric objects
+
+- A **geom** is the geometrical object that a plot uses to represent data
+- Bar charts use *bar geoms*, line charts use *line geoms*, boxplots use *boxplot geoms*, and so on.
+
+--
+
+.pull-left[
+```{r, fig.height=4}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy))
+```
+]
+
+.pull-right[
+```{r, , fig.height=4, message=FALSE}
+ggplot(data = mpg) + 
+  geom_smooth(mapping = aes(x = displ, y = hwy))
+```
+]
+
+---
+# Geometric objects
+
+- Every geom functions takes a `mapping` argument.
+
+- Not every aesthetic works with every geom
+
+--
+
+- `geom_smooth()` does not have "shape" aesthetic (it does have line type).
+
+--
+
+```{r, fig.height=4, message=FALSE}
+ggplot(data = mpg) + 
+  geom_smooth(mapping = aes(x = displ, y = hwy, linetype = drv))
+```
+
+---
+# Geometric objects
+
+- We can have multiple geoms in the same plot:
+
+```{r, fig.height=4, message=FALSE}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  geom_smooth(mapping = aes(x = displ, y = hwy))
+```
+
+---
+
+# Geometric objects
+
+```{r, fig.height=4, eval=FALSE}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + #<<
+  geom_smooth(mapping = aes(x = displ, y = hwy)) #<<
+```
+
+--
+
+We can reduce the duplication as:
+
+```{r, eval=FALSE, message=FALSE}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() +
+  geom_smooth()
+```
+
+`ggplot2` treats these mappings as global mappings that share among geom objects.
+---
+# Geometric objects
+
+- Local mappings extends global mappings
+
+```{r, fig.height=4, message=FALSE}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color = class)) +
+  geom_smooth() 
+```
+
+---
+# Geometric objects
+
+- Local mappings overrides global mappings
+
+```{r, fig.height=4, message=FALSE}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color = class)) +
+  geom_smooth(data = filter(mpg, class == "subcompact"), se = FALSE) 
+```
+
+---
+# Labels in `ggplot2`
+
+- The labels can be done via `labs()`
+
+```{r, fig.height=4, message=FALSE}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color = class)) +
+  geom_smooth(data = filter(mpg, class == "subcompact"), se = FALSE) +
+  labs(title = "Engine size vs fuel efficiency",
+       x = "Engine size (liters)",
+       y = "Highway fuel efficiency (mpg)")
+```
+
+---
+# Final words
+
+- So far, we just visited a tip of an iceberg.
+- Many amazing graphs can be created with a few lines of code.
+- Check out the *R graphics gallery* at [https://www.r-graph-gallery.com/](https://www.r-graph-gallery.com/)
+
+```{r, eval=FALSE, message=FALSE, warning=FALSE}
+library(maps)
+states <- map_data("state")
+top100 <- world.cities %>% filter(country.etc=="USA") %>%
+  mutate(pop_in_mil = pop/1000000) %>%
+  arrange(desc(pop_in_mil)) %>%
+  slice(1:100)
+
+ggplot() + 
+  geom_polygon(data=states, aes(x=long, y=lat, group = group), 
+               color="black", alpha=0.3) +
+  geom_point(data=top100,mapping=aes(x=long,y=lat,size=pop_in_mil))+
+  coord_map() + xlim(-130, -70) + ylim(25, 50) +
+  labs(title = "Top 100 biggest cities in US ")
+```
+---
+class: center, middle
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=10}
+library(maps)
+states <- map_data("state")
+top100 <- world.cities %>% filter(country.etc=="USA") %>%
+  mutate(pop_in_mil = pop/1000000) %>%
+  arrange(desc(pop_in_mil)) %>%
+  slice(1:100)
+ggplot() + 
+  geom_polygon(data=states, aes(x=long, y=lat, group = group), color="black", alpha=0.3) +      geom_point(data=top100, mapping=aes(x=long, y=lat, size = pop_in_mil)) +
+  coord_map() + xlim(-130, -70) + ylim(25, 50) +
+  labs(title = "Top 100 biggest cities in US ")
+```
+
+
+

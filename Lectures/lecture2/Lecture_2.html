@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Data Visualisation with ggplot 2</title>
+    <meta charset="utf-8">
+    <meta name="date" content="2018-08-24" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/default-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Data Visualisation with ggplot 2
+### August 24, 2018
+
+---
+
+
+
+
+# Introduction
+
+&gt; "The simple graph has brought more information to the data analyst’s mind than any other device.” — John Tukey
+
+- One of the biggest benefits of using R is its graphical capacity.
+- The package `ggplot2` and its related packages create the most elegant and most versatile graphs.
+- `ggplot2` implements the **grammar of graphics**, a coherent system for describing and building graphs
+- To learn more, read "The Layered Grammar of Graphics", [http://vita.had.co.nz/papers/layered-grammar.pdf]( http://vita.had.co.nz/papers/layered-grammar.pdf)
+
+---
+# First example
+
+**Question:** Do cars with big engines use more fuel than cars with small engines?
+
+--
+
+
+```r
+library(tidyverse)
+data(mpg)
+```
+
+*Checkpoint:* How many rows are in `mpg`? How many columns?
+
+--
+
+Variables of interest: `displ` (engine size) and `hwy` (fuel efficientcy)
+
+---
+# First `ggplot2` graph
+
+
+```r
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy))
+```
+
+![](Lecture_2_files/figure-html/unnamed-chunk-2-1.png)&lt;!-- --&gt;
+
+---
+# A graphing template
+
+```
+ggplot(data = &lt;DATA&gt;) +
+  &lt;GEOM_FUNCTION&gt;(mapping = aes(&lt;MAPPINGS&gt;))
+```
+
+To make a graph, replace the bracketed sections  with a data set, a *geom* function, or a collection of *mappings*.
+
+--
+
+*Check points:*
+- Make a scatterplot of `hwy` versus `cyl`.
+- What happens if you make a scatterplot if `class` versus `drv`? (You can look up the help documnet of the data set `mpg` for definition of `class` and `drv`)
+
+---
+# Aesthetic mappings
+
+![](Lecture_2_files/figure-html/unnamed-chunk-3-1.png)&lt;!-- --&gt;
+
+One group of points (highlighted in red) seems to fall outside of the linear trend. These cars have a higher mileage than you might expect. How can you explain these cars?
+
+--
+
+*The type of the cars might provide more insight!!*
+
+---
+# Aesthetic mappings
+
+- An aesthetic is a visual property of the objects in a graph
+- Aesthetics include the size, the shape, the color of points, etc.
+
+--
+
+```r
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, color = class))
+```
+
+![](Lecture_2_files/figure-html/unnamed-chunk-4-1.png)&lt;!-- --&gt;
+
+---
+# In-class activities
+
+1. Use different aesthetics for `class`. Your options are: color, size, shape, alpha. Can you say something about those outliers?
+
+--
+
+2. Is this possible to use multiple aesthetics on the same graph? Give an example.
+
+---
+# Aesthetics
+
+You can also set the aesthetic properties of your geom manually. 
+
+```r
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy), color = "blue")
+```
+
+![](Lecture_2_files/figure-html/unnamed-chunk-5-1.png)&lt;!-- --&gt;
+
+--
+
+**Quick question:** What’s gone wrong with this code? Why are the points not blue?
+
+
+```r
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, color = "blue"))
+```
+
+---
+# Facets
+
+- Another way to add variables (esp., categorical) is to split the plot into **facets**, subplots that each display one subset of the data.
+
+
+```r
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_wrap(~ class, nrow = 2)
+```
+
+![](Lecture_2_files/figure-html/unnamed-chunk-7-1.png)&lt;!-- --&gt;
+
+---
+# Facets
+
+
+```r
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_grid(drv ~ cyl)
+```
+
+![](Lecture_2_files/figure-html/unnamed-chunk-8-1.png)&lt;!-- --&gt;
+
+--
+
+*Quick question:* Why do the empty cells in plot mean?
+
+---
+# Geometric objects
+
+- A **geom** is the geometrical object that a plot uses to represent data
+- Bar charts use *bar geoms*, line charts use *line geoms*, boxplots use *boxplot geoms*, and so on.
+
+--
+
+.pull-left[
+
+```r
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy))
+```
+
+![](Lecture_2_files/figure-html/unnamed-chunk-9-1.png)&lt;!-- --&gt;
+]
+
+.pull-right[
+
+```r
+ggplot(data = mpg) + 
+  geom_smooth(mapping = aes(x = displ, y = hwy))
+```
+
+![](Lecture_2_files/figure-html/unnamed-chunk-10-1.png)&lt;!-- --&gt;
+]
+
+---
+# Geometric objects
+
+- Every geom functions takes a `mapping` argument.
+
+- Not every aesthetic works with every geom
+
+--
+
+- `geom_smooth()` does not have "shape" aesthetic (it does have line type).
+
+--
+
+
+```r
+ggplot(data = mpg) + 
+  geom_smooth(mapping = aes(x = displ, y = hwy, linetype = drv))
+```
+
+![](Lecture_2_files/figure-html/unnamed-chunk-11-1.png)&lt;!-- --&gt;
+
+---
+# Geometric objects
+
+- We can have multiple geoms in the same plot:
+
+
+```r
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  geom_smooth(mapping = aes(x = displ, y = hwy))
+```
+
+![](Lecture_2_files/figure-html/unnamed-chunk-12-1.png)&lt;!-- --&gt;
+
+---
+
+# Geometric objects
+
+
+```r
+ggplot(data = mpg) + 
+* geom_point(mapping = aes(x = displ, y = hwy)) +
+* geom_smooth(mapping = aes(x = displ, y = hwy))
+```
+
+--
+
+We can reduce the duplication as:
+
+
+```r
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() +
+  geom_smooth()
+```
+
+`ggplot2` treats these mappings as global mappings that share among geom objects.
+---
+# Geometric objects
+
+- Local mappings extends global mappings
+
+
+```r
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color = class)) +
+  geom_smooth() 
+```
+
+![](Lecture_2_files/figure-html/unnamed-chunk-15-1.png)&lt;!-- --&gt;
+
+---
+# Geometric objects
+
+- Local mappings overrides global mappings
+
+
+```r
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color = class)) +
+  geom_smooth(data = filter(mpg, class == "subcompact"), se = FALSE) 
+```
+
+![](Lecture_2_files/figure-html/unnamed-chunk-16-1.png)&lt;!-- --&gt;
+
+---
+# Labels in `ggplot2`
+
+- The labels can be done via `labs()`
+
+
+```r
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color = class)) +
+  geom_smooth(data = filter(mpg, class == "subcompact"), se = FALSE) +
+  labs(title = "Engine size vs fuel efficiency",
+       x = "Engine size (liters)",
+       y = "Highway fuel efficiency (mpg)")
+```
+
+![](Lecture_2_files/figure-html/unnamed-chunk-17-1.png)&lt;!-- --&gt;
+
+---
+# Final words
+
+- So far, we just visited a tip of an iceberg.
+- Many amazing graphs can be created with a few lines of code.
+- Check out the *R graphics gallery* at [https://www.r-graph-gallery.com/](https://www.r-graph-gallery.com/)
+
+
+```r
+library(maps)
+states &lt;- map_data("state")
+top100 &lt;- world.cities %&gt;% filter(country.etc=="USA") %&gt;%
+  mutate(pop_in_mil = pop/1000000) %&gt;%
+  arrange(desc(pop_in_mil)) %&gt;%
+  slice(1:100)
+
+ggplot() + 
+  geom_polygon(data=states, aes(x=long, y=lat, group = group), 
+               color="black", alpha=0.3) +
+  geom_point(data=top100,mapping=aes(x=long,y=lat,size=pop_in_mil))+
+  coord_map() + xlim(-130, -70) + ylim(25, 50) +
+  labs(title = "Top 100 biggest cities in US ")
+```
+---
+class: center, middle
+
+![](Lecture_2_files/figure-html/unnamed-chunk-19-1.png)&lt;!-- --&gt;
+    </textarea>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function() {
+  var d = document, s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})();</script>
+
+<script>
+(function() {
+  var i, text, code, codes = document.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+})();
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Data Manipulation with dplyr (tidyverse)</title>
+    <meta charset="utf-8">
+    <meta name="date" content="2018-08-24" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/default-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Data Manipulation with dplyr (tidyverse)
+### August 24, 2018
+
+---
+
+
+
+
+# Introduction
+
+A typical data analysis project:
+
+&lt;img src="images/data-science.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+--
+
+The `tidyverse` is an opinionated collection of R packages for each steps in data analysis.
+
+&lt;img src="images/tidyverse.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+# Tidyverse 
+
+&gt; Happy families are all alike; every unhappy family is unhappy in its own way. 
+
+- *Hadley Wickham:* tidy datasets are all alike, but every messy dataset is messy in its own way.
+
+--
+
+In **tidy data:**
+
+1. Each variable forms a column.
+
+2. Each observation forms a row.
+
+3. Each type of observational unit forms a table.
+
+--
+
+### How to tidy a messy data?
+
+- Must be treated in a case by case basic
+
+- Many packages in `tidyverse` help: `tidyr` (reshape the table), `stringr` (for strings), `lubridate` (for date/time), and `forcats` (for factors and categorical variables).
+
+---
+# Example - Flights data
+
+- `flights [227,496 x 14].` Every flight departing Houston in 2011.
+
+- `weather [8,723 x 14].` Hourly weather data.
+
+- `planes [2,853 x 9].` Plane metadata.
+
+- `airports [3,376 x 7].` Airport metadata.
+
+--
+
+&lt;br/&gt;
+&lt;br/&gt;
+*Brainstorming:* What questions might you want to answer with this data?
+---
+# One table verbs
+
+- **filter:** keep rows matching criteria
+
+- **select:** pick columns by name
+
+- **arrange:** reorder rows
+
+- **mutate:** add new variables
+
+- **summarise:** reduce variables to values
+
+---
+
+# Structure
+
+- First argument is a data frame (table)
+
+- Subsequent arguments say what to do with data frame (table)
+
+- Always return a data frame
+
+- (Never modify in place)
+---
+
+&lt;img src="images/filter-example1.png" width="100%" style="display: block; margin: auto;" /&gt;
+---
+
+&lt;img src="images/filter-example2.png" width="100%" style="display: block; margin: auto;" /&gt;
+---
+
+&lt;img src="images/logical-ops.png" width="100%" style="display: block; margin: auto;" /&gt;
+---
+# Find all flights:
+
+1. To SFO or OAK
+
+2. In January
+
+3. Delayed by more than an hour
+
+4. That departed between midnight and 5 a.m.
+
+5. Where the arrival delay was more than twice the departure delay
+
+**How many flights are there for each question?**
+
+---
+
+&lt;img src="images/select-example1.png" width="100%" style="display: block; margin: auto;" /&gt;
+---
+
+&lt;img src="images/select-example2.png" width="100%" style="display: block; margin: auto;" /&gt;
+---
+# More on `select()`
+
+- You can select a consecutive sequence of columns using `:` (colon) in the form of
+
+.center[`&lt;NAME OF FIRST SELECTED COLUMN&gt;:&lt;NAME OF LAST SELECTED COLUMN&gt;`]
+
+- Number of very useful functions that only work inside `select()`, like `starts_with()`, `ends_with()`, `contain()`, etc.
+
+- Read the help for `select()` to see all available functions.
+---
+
+&lt;img src="images/arrange-example1.png" width="100%" style="display: block; margin: auto;" /&gt;
+---
+
+&lt;img src="images/arrange-example2.png" width="100%" style="display: block; margin: auto;" /&gt;
+---
+# Your turn
+
+1. Which flights were most delayed?
+
+2. Which flights caught up the most time during the flight?
+
+---
+&lt;img src="images/mutate-example1.png" width="100%" style="display: block; margin: auto;" /&gt;
+---
+
+&lt;img src="images/mutate-example2.png" width="100%" style="display: block; margin: auto;" /&gt;
+---
+# Your turn
+
+1. Add a new variable that shows how much time was made up or lost in flight
+
+2. Compute speed in mph from time (in minutes) and distance (in miles). Which flight flew the fastest?
+
+---
+&lt;img src="images/summarise-example.png" width="100%" style="display: block; margin: auto;" /&gt;
+---
+
+&lt;img src="images/grouped-summarise.png" width="100%" style="display: block; margin: auto;" /&gt;
+---
+# Summary functions
+
+- `min()`, `median()`, `max()`, `quantile(x, p)`
+
+- `n()`, `n_distinct()`, `sum()`, `mean(x)`
+
+- `sum(x &gt; 10)`, `mean(x &gt; 10)`
+
+- `sd()`, `var()`, `iqr()`, `mad()`
+---
+# Your turn
+
+How might you summarise `dep_delay` for each day?
+
+---
+
+# Data pipelines
+
+- Functions in R behave similar to mathematical functions, especially for composition of functions. For example: the function `\(f(g(h(x)))\)` must be evaluated inside out.
+
+--
+
+- Use pipe `%&gt;%` in the package `magrittr`, part of the `tidyverse`: 
+
+.center[ `x %&gt;% h() %&gt;% g() %&gt;% f()` ]
+
+- Mentally, read `%&gt;%` as "then". 
+
+- For example: Take `\(x\)`, then do `\(h\)`, then do `\(g\)`, then do `\(f\)`.
+
+---
+# Your turn
+
+Crete data pipelines to answer the following questions:
+
+1. Which destinations have the highest average delays?
+
+2. Which flights (i.e., carrier + flight) happen every day? Where do they fly to?
+
+---
+# . - the placehoder
+
+- What if the input should not be the first argument?
+
+  - Use `.` as an argument placeholder.
+  
+  - Example: 
+
+```
+f(y, x)
+
+x %&gt;% f(y, .)
+```
+  - Placeholder says where the piped input should land
+---
+# Two table verbs
+
+- How to join two tables (datasets)?
+
+&lt;img src="images/joining-intro.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+---
+
+&lt;img src="images/inner-join.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+---
+&lt;img src="images/left-join.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+---
+&lt;img src="images/semi-join.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+---
+&lt;img src="images/anti-join.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+---
+# Joining types
+
+| Type | Action |
+|------|--------|
+| inner | Include only rows in **both** x and y |
+| left | Include all of x, and matching rows of y |
+| semi | Include rows of x that match y |
+| anti | Include rows of x that **don’t** match y |
+
+- All common named columns will be used as keys for matching.
+
+
+---
+# Your turn
+
+
+```r
+hourly_delay &lt;- flights %&gt;%
+  group_by(date, hour) %&gt;%
+  filter(!is.na(dep_delay)) %&gt;%
+  summarise(
+    delay = mean(dep_delay),
+    n = n()
+  ) %&gt;%
+  filter(n &gt; 10)
+
+delay_weather &lt;- hourly_delay %&gt;% left_join(weather)
+```
+
+What weather conditions are associated with delays leaving in Houston? Use graphics to explore.
+    </textarea>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function() {
+  var d = document, s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})();</script>
+
+<script>
+(function() {
+  var i, text, code, codes = document.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+})();
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

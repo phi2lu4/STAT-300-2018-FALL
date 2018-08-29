@@ -1,0 +1,94 @@
+---
+title: "Data Manipulation Worksheet"
+output: html_notebook
+---
+
+
+# Get started
+
+It is a good habit to first create a RStudio project. Go to the menu, choose `File`, then `New Project`, to initiate a new project. Once we have RStudio project set up, we need to copy the data files and place them in the project directory, preferably under the folder named `data` within the project folder.
+
+The worksheet assumes that you have done all of the above steps!
+
+# The first step
+
+We will load all the necessary libraries into R session. Since all packages we will use in this worksheet are parts of the `tidyverse`, we will use it.
+
+```{r}
+library(tidyverse)
+```
+
+Next, we read all the data files.
+
+```{r}
+flights <- read_csv("data/flights.csv")
+weather <- read_csv("data/weather.csv")
+planes <- read_csv("data/planes.csv")
+airports <- read_csv("data/airports.csv")
+```
+
+# Your turn questions
+
+1. Find all flights:
+  a) To SFO or OAK
+  b) In January
+  c) Delayed by more than an hour
+  d) That departed between midnight and 5 a.m.
+  e) Where the arrival delay was more than twice the departure delay
+  
+```{r}
+# Your code goes here
+
+```
+
+2. Use `select()`
+  a) Which flights were most delayed?
+  b) Which flights caught up the most time during the flight?
+  
+```{r}
+# Your code goes here
+
+```
+
+3. Use `mutate()`
+  a). Add a new variable that shows how much time was made up or lost in flight 
+  b) Compute speed in mph from time (in minutes) and distance (in miles). Which flight flew the fastest?
+
+```{r}
+# Your code goes here
+
+```
+
+4. How might you summarise `dep_delay` for each day?
+
+```{r}
+# Your code goes here
+
+```
+
+5. Crete data pipelines to answer the following questions:
+  a) Which destinations have the highest average delays?
+  b) Which flights (i.e., carrier + flight) happen every day? Where do they fly to?
+  
+```{r}
+# Your code goes here
+
+```
+
+6. What weather conditions are associated with delays leaving in Houston? Use graphics to explore.
+
+```{r}
+hourly_delay <- flights %>%
+  group_by(date, hour) %>%
+  filter(!is.na(dep_delay)) %>%
+  summarise(
+    delay = mean(dep_delay),
+    n = n()
+  ) %>%
+  filter(n > 10)
+
+delay_weather <- hourly_delay %>% left_join(weather)
+
+# You code goes below this comment
+
+```

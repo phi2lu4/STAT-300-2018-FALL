@@ -78,7 +78,7 @@ airports <- read_csv("data/airports.csv")
 6. What weather conditions are associated with delays leaving in Houston? Use graphics to explore.
 
 ```{r}
-hourly_delay <- flights %>%
+hourly_delay <- flights %>% mutate(date = as_date(date)) %>%
   group_by(date, hour) %>%
   filter(!is.na(dep_delay)) %>%
   summarise(
